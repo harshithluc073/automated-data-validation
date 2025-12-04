@@ -1,0 +1,44 @@
+dataset_name: "customer_churn"
+version: "1.0.0"
+description: "Telco customer churn data with strict validation rules"
+
+schema:
+  customerID:
+    type: "string"
+    nullable: false
+    unique: true
+    min_length: 5
+  gender:
+    type: "category"
+    allowed_values: ["Male", "Female"]
+    nullable: false
+  SeniorCitizen:
+    type: "integer"
+    allowed_values: [0, 1]
+    nullable: false
+  tenure:
+    type: "integer"
+    min: 0
+    max: 72
+    nullable: false
+  MonthlyCharges:
+    type: "float"
+    min: 0.0
+    max: 200.0
+    nullable: false
+  TotalCharges:
+    type: "float"
+    min: 0.0
+    nullable: true
+  Churn:
+    type: "category"
+    allowed_values: ["Yes", "No"]
+    nullable: false
+
+business_rules:
+  - name: "tenure_vs_totalcharges"
+    description: "TotalCharges should increase with tenure"
+    condition: "tenure > 0 and TotalCharges > 0"
+  - name: "monthlycharges_range"
+    description: "MonthlyCharges must be reasonable for tenure"
+    condition: "MonthlyCharges < 50 or tenure >= 12"
