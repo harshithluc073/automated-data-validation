@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      pull-requests: write  # Required for posting comments
+      pull-requests: write
     
     steps:
     - name: Checkout code
@@ -32,6 +32,11 @@ jobs:
         mkdir -p reports/profiling
         mkdir -p great_expectations/uncommitted/data_docs/local_site
 
+    - name: Pull DVC baseline
+      run: |
+        pip install dvc
+        dvc pull
+
     - name: Run data validation
       id: validation
       run: |
@@ -40,68 +45,68 @@ jobs:
         exit_code=$?
         echo "validation_exit_code=$exit_code" >> $GITHUB_OUTPUT
         
-        # Save output for comment
         echo "validation_output<<EOF" >> $GITHUB_ENV
         cat validation_output.txt >> $GITHUB_ENV
         echo "EOF" >> $GITHUB_ENV
+      continue-on-error: true
+
+    - name: Detect drift against baseline
+      id: drift
+      run: |
+        echo "Running drift detection..."
+        python scripts/detect_drift.py data/raw/churn_clean.csv > drift_output.txt 2>&1
+        drift_exit_code=$?
+        echo "drift_exit_code=$drift_exit_code" >> $GITHUB_OUTPUT
         
-        # Always return success here to allow next steps, but we'll fail at the end
-        exit 0
+        echo "drift_output<<EOF" >> $GITHUB_ENV
+        cat drift_output.txt >> $GITHUB_ENV
+        echo "EOF" >> $GITHUB_ENV
+      continue-on-error: true
 
     - name: Generate profiling report
-      run: |
-        echo "Generating profiling report..."
-        python scripts/profile_dataset.py data/raw/churn_clean.csv
+      run: python scripts/profile_dataset.py data/raw/churn_clean.csv
 
     - name: Generate Data Docs
-      run: |
-        python -c "import great_expectations as gx; context = gx.get_context(); context.build_data_docs()"
+      run: python -c "import great_expectations as gx; context = gx.get_context(); context.build_data_docs()"
 
-    - name: Upload Great Expectations Data Docs
-      if: always()
+    - name: Upload Artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: data-docs
-        path: great_expectations/uncommitted/data_docs/local_site/
+        name: validation-artifacts
+        path: |
+          great_expectations/uncommitted/data_docs/local_site/
+          reports/profiling/
         retention-days: 30
 
-    - name: Upload Profiling Reports
-      if: always()
-      uses: actions/upload-artifact@v4
-      with:
-        name: profiling-reports
-        path: reports/profiling/
-        retention-days: 30
-
-    - name: Comment PR with validation results
+    - name: Comment PR with results
       if: github.event_name == 'pull_request'
       uses: actions/github-script@v7
       with:
         script: |
-          const exitCode = ${{ steps.validation.outputs.validation_exit_code }};
-          const output = `${{ env.validation_output }}`;
+          const validationExitCode = ${{ steps.validation.outputs.validation_exit_code }};
+          const driftExitCode = ${{ steps.drift.outputs.drift_exit_code }};
           const runId = context.runId;
           const repo = context.repo;
           
-          let status = exitCode == '0' ? '✅ **PASS**' : '❌ **FAIL**';
-          let color = exitCode == '0' ? 'success' : 'failure';
+          let status = (validationExitCode == '0' && driftExitCode == '0') ? '✅ **PASS**' : '❌ **FAIL**';
           
-          const commentBody = `## 📊 Data Validation Report
+          const commentBody = `## 📊 Data Quality Report
           
           **Status:** ${status}
+          **Workflow:** [View Details](https://github.com/${repo.owner}/${repo.repo}/actions/runs/${runId})
           
-          **Workflow Run:** [View Details](https://github.com/${repo.owner}/${repo.repo}/actions/runs/${runId})
-          
-          ### Validation Summary
+          ### Validation: ${validationExitCode == '0' ? '✅ PASS' : '❌ FAIL'}
           \`\`\`
-          ${output.split('\n').slice(-10).join('\n')}
+          ${`${{ env.validation_output }}`.split('\n').slice(-8).join('\n')}
           \`\`\`
           
-          ### Artifacts
-          - 📄 [Great Expectations Data Docs](https://github.com/${repo.owner}/${repo.repo}/actions/runs/${runId})
-          - 📈 [Profiling Reports](https://github.com/${repo.owner}/${repo.repo}/actions/runs/${runId})
+          ### Drift Detection: ${driftExitCode == '0' ? '✅ PASS' : '❌ FAIL'}
+          \`\`\`
+          ${`${{ env.drift_output }}`.split('\n').slice(-6).join('\n')}
+          \`\`\`
           
-          ${exitCode == '0' ? '✅ Ready to merge!' : '❌ Please fix validation errors before merging.'}`;
+          ${(validationExitCode != '0' || driftExitCode != '0') ? '❌ **Merge blocked** - Fix issues before merging.' : '✅ **Ready to merge!**'}
+          `;
           
           github.rest.issues.createComment({
             issue_number: context.issue.number,
@@ -110,8 +115,6 @@ jobs:
             body: commentBody
           });
 
-    - name: Fail workflow if validation failed
-      if: steps.validation.outputs.validation_exit_code != '0'
-      run: |
-        echo "❌ Data validation failed. Merge blocked."
-        exit 1
+    - name: Fail if validation or drift failed
+      if: steps.validation.outputs.validation_exit_code != '0' || steps.drift.outputs.drift_exit_code != '0'
+      run: exit 1
