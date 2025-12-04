@@ -9,19 +9,13 @@ on:
 jobs:
   validate-data:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write  # Required for posting comments
     
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
-
-    - name: Debug - List repository structure
-      run: |
-        echo "=== Repository Structure ==="
-        ls -la
-        echo "=== Data Directory ==="
-        ls -la data/raw/
-        echo "=== GE Expectations ==="
-        ls -la great_expectations/expectations/
 
     - name: Set up Python
       uses: actions/setup-python@v4
@@ -42,27 +36,26 @@ jobs:
       id: validation
       run: |
         echo "Running validation on clean dataset..."
-        # Save exit code but continue
-        python scripts/validate_data.py data/raw/churn_clean.csv
-        echo "validation_exit_code=$?" >> $GITHUB_OUTPUT
-      continue-on-error: true
+        python scripts/validate_data.py data/raw/churn_clean.csv > validation_output.txt 2>&1
+        exit_code=$?
+        echo "validation_exit_code=$exit_code" >> $GITHUB_OUTPUT
+        
+        # Save output for comment
+        echo "validation_output<<EOF" >> $GITHUB_ENV
+        cat validation_output.txt >> $GITHUB_ENV
+        echo "EOF" >> $GITHUB_ENV
+        
+        # Always return success here to allow next steps, but we'll fail at the end
+        exit 0
 
     - name: Generate profiling report
       run: |
         echo "Generating profiling report..."
         python scripts/profile_dataset.py data/raw/churn_clean.csv
 
-    - name: Force generate Data Docs
+    - name: Generate Data Docs
       run: |
-        echo "Attempting to build Data Docs..."
-        python -c "import great_expectations as gx; context = gx.get_context(); context.build_data_docs()" || echo "⚠️ Data Docs generation failed"
-
-    - name: List generated files
-      run: |
-        echo "=== Data Docs Directory ==="
-        ls -la great_expectations/uncommitted/data_docs/local_site/ || echo "⚠️ No Data Docs found"
-        echo "=== Profiling Reports ==="
-        ls -la reports/profiling/ || echo "⚠️ No profiling reports found"
+        python -c "import great_expectations as gx; context = gx.get_context(); context.build_data_docs()"
 
     - name: Upload Great Expectations Data Docs
       if: always()
@@ -80,8 +73,45 @@ jobs:
         path: reports/profiling/
         retention-days: 30
 
-    - name: Check validation result
+    - name: Comment PR with validation results
+      if: github.event_name == 'pull_request'
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const exitCode = ${{ steps.validation.outputs.validation_exit_code }};
+          const output = `${{ env.validation_output }}`;
+          const runId = context.runId;
+          const repo = context.repo;
+          
+          let status = exitCode == '0' ? '✅ **PASS**' : '❌ **FAIL**';
+          let color = exitCode == '0' ? 'success' : 'failure';
+          
+          const commentBody = `## 📊 Data Validation Report
+          
+          **Status:** ${status}
+          
+          **Workflow Run:** [View Details](https://github.com/${repo.owner}/${repo.repo}/actions/runs/${runId})
+          
+          ### Validation Summary
+          \`\`\`
+          ${output.split('\n').slice(-10).join('\n')}
+          \`\`\`
+          
+          ### Artifacts
+          - 📄 [Great Expectations Data Docs](https://github.com/${repo.owner}/${repo.repo}/actions/runs/${runId})
+          - 📈 [Profiling Reports](https://github.com/${repo.owner}/${repo.repo}/actions/runs/${runId})
+          
+          ${exitCode == '0' ? '✅ Ready to merge!' : '❌ Please fix validation errors before merging.'}`;
+          
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: repo.owner,
+            repo: repo.repo,
+            body: commentBody
+          });
+
+    - name: Fail workflow if validation failed
       if: steps.validation.outputs.validation_exit_code != '0'
       run: |
-        echo "❌ Data validation failed. Check the uploaded artifacts for details."
+        echo "❌ Data validation failed. Merge blocked."
         exit 1
