@@ -14,6 +14,15 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
+    - name: Debug - List repository structure
+      run: |
+        echo "=== Repository Structure ==="
+        ls -la
+        echo "=== Data Directory ==="
+        ls -la data/raw/
+        echo "=== GE Expectations ==="
+        ls -la great_expectations/expectations/
+
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
@@ -33,8 +42,9 @@ jobs:
       id: validation
       run: |
         echo "Running validation on clean dataset..."
+        # Save exit code but continue
         python scripts/validate_data.py data/raw/churn_clean.csv
-        echo "validation_success=$?" >> $GITHUB_OUTPUT
+        echo "validation_exit_code=$?" >> $GITHUB_OUTPUT
       continue-on-error: true
 
     - name: Generate profiling report
@@ -42,9 +52,21 @@ jobs:
         echo "Generating profiling report..."
         python scripts/profile_dataset.py data/raw/churn_clean.csv
 
+    - name: Force generate Data Docs
+      run: |
+        echo "Attempting to build Data Docs..."
+        python -c "import great_expectations as gx; context = gx.get_context(); context.build_data_docs()" || echo "⚠️ Data Docs generation failed"
+
+    - name: List generated files
+      run: |
+        echo "=== Data Docs Directory ==="
+        ls -la great_expectations/uncommitted/data_docs/local_site/ || echo "⚠️ No Data Docs found"
+        echo "=== Profiling Reports ==="
+        ls -la reports/profiling/ || echo "⚠️ No profiling reports found"
+
     - name: Upload Great Expectations Data Docs
       if: always()
-      uses: actions/upload-artifact@v4  # Updated from v3 to v4
+      uses: actions/upload-artifact@v4
       with:
         name: data-docs
         path: great_expectations/uncommitted/data_docs/local_site/
@@ -52,14 +74,14 @@ jobs:
 
     - name: Upload Profiling Reports
       if: always()
-      uses: actions/upload-artifact@v4  # Updated from v3 to v4
+      uses: actions/upload-artifact@v4
       with:
         name: profiling-reports
         path: reports/profiling/
         retention-days: 30
 
     - name: Check validation result
-      if: steps.validation.outcome == 'failure'
+      if: steps.validation.outputs.validation_exit_code != '0'
       run: |
         echo "❌ Data validation failed. Check the uploaded artifacts for details."
         exit 1
