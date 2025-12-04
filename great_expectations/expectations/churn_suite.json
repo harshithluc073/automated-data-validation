@@ -1,0 +1,166 @@
+{
+  "data_asset_type": null,
+  "expectation_suite_name": "churn_suite",
+  "expectations": [
+    {
+      "expectation_type": "expect_table_row_count_to_be_between",
+      "kwargs": {
+        "min_value": 5000,
+        "max_value": 10000
+      },
+      "meta": {}
+    },
+    {
+      "expectation_type": "expect_table_columns_to_match_ordered_list",
+      "kwargs": {
+        "column_list": [
+          "customerID",
+          "gender",
+          "SeniorCitizen",
+          "Partner",
+          "Dependents",
+          "tenure",
+          "PhoneService",
+          "MultipleLines",
+          "InternetService",
+          "OnlineSecurity",
+          "OnlineBackup",
+          "DeviceProtection",
+          "TechSupport",
+          "StreamingTV",
+          "StreamingMovies",
+          "Contract",
+          "PaperlessBilling",
+          "PaymentMethod",
+          "MonthlyCharges",
+          "TotalCharges",
+          "Churn"
+        ]
+      },
+      "meta": {}
+    },
+    {
+      "expectation_type": "expect_column_values_to_not_be_null",
+      "kwargs": {
+        "column": "customerID"
+      },
+      "meta": {}
+    },
+    {
+      "expectation_type": "expect_column_values_to_be_unique",
+      "kwargs": {
+        "column": "customerID"
+      },
+      "meta": {}
+    },
+    {
+      "expectation_type": "expect_column_values_to_not_be_null",
+      "kwargs": {
+        "column": "gender"
+      },
+      "meta": {}
+    },
+    {
+      "expectation_type": "expect_column_distinct_values_to_equal_set",
+      "kwargs": {
+        "column": "gender",
+        "value_set": [
+          "Male",
+          "Female"
+        ]
+      },
+      "meta": {}
+    },
+    {
+      "expectation_type": "expect_column_values_to_not_be_null",
+      "kwargs": {
+        "column": "SeniorCitizen"
+      },
+      "meta": {}
+    },
+    {
+      "expectation_type": "expect_column_distinct_values_to_equal_set",
+      "kwargs": {
+        "column": "SeniorCitizen",
+        "value_set": [
+          0,
+          1
+        ]
+      },
+      "meta": {}
+    },
+    {
+      "expectation_type": "expect_column_values_to_not_be_null",
+      "kwargs": {
+        "column": "tenure"
+      },
+      "meta": {}
+    },
+    {
+      "expectation_type": "expect_column_values_to_be_between",
+      "kwargs": {
+        "column": "tenure",
+        "max_value": 72,
+        "min_value": 0
+      },
+      "meta": {}
+    },
+    {
+      "expectation_type": "expect_column_values_to_not_be_null",
+      "kwargs": {
+        "column": "MonthlyCharges"
+      },
+      "meta": {}
+    },
+    {
+      "expectation_type": "expect_column_values_to_be_between",
+      "kwargs": {
+        "column": "MonthlyCharges",
+        "max_value": 200,
+        "min_value": 0
+      },
+      "meta": {}
+    },
+    {
+      "expectation_type": "expect_column_values_to_be_between",
+      "kwargs": {
+        "column": "TotalCharges",
+        "max_value": 10000,
+        "min_value": 0,
+        "mostly": 0.95
+      },
+      "meta": {}
+    },
+    {
+      "expectation_type": "expect_column_values_to_not_be_null",
+      "kwargs": {
+        "column": "Churn"
+      },
+      "meta": {}
+    },
+    {
+      "expectation_type": "expect_column_distinct_values_to_equal_set",
+      "kwargs": {
+        "column": "Churn",
+        "value_set": [
+          "Yes",
+          "No"
+        ]
+      },
+      "meta": {}
+    },
+    {
+      "expectation_type": "expect_column_pair_values_A_to_be_greater_than_B",
+      "kwargs": {
+        "column_A": "TotalCharges",
+        "column_B": "MonthlyCharges",
+        "mostly": 0.9,
+        "or_equal": true
+      },
+      "meta": {}
+    }
+  ],
+  "meta": {
+    "great_expectations_version": "0.18.8"
+  }
+}
