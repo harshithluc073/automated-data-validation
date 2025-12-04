@@ -44,7 +44,7 @@ jobs:
 
     - name: Upload Great Expectations Data Docs
       if: always()
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4  # Updated from v3 to v4
       with:
         name: data-docs
         path: great_expectations/uncommitted/data_docs/local_site/
@@ -52,7 +52,7 @@ jobs:
 
     - name: Upload Profiling Reports
       if: always()
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4  # Updated from v3 to v4
       with:
         name: profiling-reports
         path: reports/profiling/
