@@ -1,0 +1,279 @@
+
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>Data Profiling Report - churn_clean.csv</title>
+        <style>
+            body { font-family: Arial, sans-serif; margin: 40px; background: #f5f5f5; }
+            .container { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+            h1 { color: #2c3e50; }
+            h2 { color: #34495e; border-bottom: 2px solid #3498db; padding-bottom: 10px; }
+            .stat { background: #ecf0f1; padding: 15px; margin: 10px 0; border-radius: 5px; }
+            .stat-label { font-weight: bold; color: #7f8c8d; }
+            .stat-value { font-size: 1.2em; color: #2c3e50; }
+            table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+            th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
+            th { background-color: #3498db; color: white; }
+            tr:hover { background-color: #f5f5f5; }
+            .alert { background: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; margin: 15px 0; }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h1>🔍 Data Profiling Report</h1>
+            <p><strong>Dataset:</strong> churn_clean.csv</p>
+            <p><strong>Generated:</strong> 2025-12-04 11:47:09</p>
+            <p><strong>Rows:</strong> 7,043</p>
+            <p><strong>Columns:</strong> 21</p>
+            
+            <h2>📈 Dataset Shape</h2>
+            <div class="stat">
+                <span class="stat-label">Total Rows:</span> <span class="stat-value">7,043</span>
+            </div>
+            <div class="stat">
+                <span class="stat-label">Total Columns:</span> <span class="stat-value">21</span>
+            </div>
+            
+            <h2>🗂️ Column Summary</h2>
+            <table>
+                <tr>
+                    <th>Column</th>
+                    <th>Data Type</th>
+                    <th>Non-Null Count</th>
+                    <th>Null Count</th>
+                    <th>Unique Values</th>
+                </tr>
+    
+                <tr>
+                    <td><strong>customerID</strong></td>
+                    <td>object</td>
+                    <td>7,043</td>
+                    <td>0</td>
+                    <td>7,043</td>
+                </tr>
+        
+                <tr>
+                    <td><strong>gender</strong></td>
+                    <td>object</td>
+                    <td>7,043</td>
+                    <td>0</td>
+                    <td>2</td>
+                </tr>
+        
+                <tr>
+                    <td><strong>SeniorCitizen</strong></td>
+                    <td>int64</td>
+                    <td>7,043</td>
+                    <td>0</td>
+                    <td>2</td>
+                </tr>
+        
+                <tr>
+                    <td><strong>Partner</strong></td>
+                    <td>object</td>
+                    <td>7,043</td>
+                    <td>0</td>
+                    <td>2</td>
+                </tr>
+        
+                <tr>
+                    <td><strong>Dependents</strong></td>
+                    <td>object</td>
+                    <td>7,043</td>
+                    <td>0</td>
+                    <td>2</td>
+                </tr>
+        
+                <tr>
+                    <td><strong>tenure</strong></td>
+                    <td>int64</td>
+                    <td>7,043</td>
+                    <td>0</td>
+                    <td>73</td>
+                </tr>
+        
+                <tr>
+                    <td><strong>PhoneService</strong></td>
+                    <td>object</td>
+                    <td>7,043</td>
+                    <td>0</td>
+                    <td>2</td>
+                </tr>
+        
+                <tr>
+                    <td><strong>MultipleLines</strong></td>
+                    <td>object</td>
+                    <td>7,043</td>
+                    <td>0</td>
+                    <td>3</td>
+                </tr>
+        
+                <tr>
+                    <td><strong>InternetService</strong></td>
+                    <td>object</td>
+                    <td>7,043</td>
+                    <td>0</td>
+                    <td>3</td>
+                </tr>
+        
+                <tr>
+                    <td><strong>OnlineSecurity</strong></td>
+                    <td>object</td>
+                    <td>7,043</td>
+                    <td>0</td>
+                    <td>3</td>
+                </tr>
+        
+                <tr>
+                    <td><strong>OnlineBackup</strong></td>
+                    <td>object</td>
+                    <td>7,043</td>
+                    <td>0</td>
+                    <td>3</td>
+                </tr>
+        
+                <tr>
+                    <td><strong>DeviceProtection</strong></td>
+                    <td>object</td>
+                    <td>7,043</td>
+                    <td>0</td>
+                    <td>3</td>
+                </tr>
+        
+                <tr>
+                    <td><strong>TechSupport</strong></td>
+                    <td>object</td>
+                    <td>7,043</td>
+                    <td>0</td>
+                    <td>3</td>
+                </tr>
+        
+                <tr>
+                    <td><strong>StreamingTV</strong></td>
+                    <td>object</td>
+                    <td>7,043</td>
+                    <td>0</td>
+                    <td>3</td>
+                </tr>
+        
+                <tr>
+                    <td><strong>StreamingMovies</strong></td>
+                    <td>object</td>
+                    <td>7,043</td>
+                    <td>0</td>
+                    <td>3</td>
+                </tr>
+        
+                <tr>
+                    <td><strong>Contract</strong></td>
+                    <td>object</td>
+                    <td>7,043</td>
+                    <td>0</td>
+                    <td>3</td>
+                </tr>
+        
+                <tr>
+                    <td><strong>PaperlessBilling</strong></td>
+                    <td>object</td>
+                    <td>7,043</td>
+                    <td>0</td>
+                    <td>2</td>
+                </tr>
+        
+                <tr>
+                    <td><strong>PaymentMethod</strong></td>
+                    <td>object</td>
+                    <td>7,043</td>
+                    <td>0</td>
+                    <td>4</td>
+                </tr>
+        
+                <tr>
+                    <td><strong>MonthlyCharges</strong></td>
+                    <td>float64</td>
+                    <td>7,043</td>
+                    <td>0</td>
+                    <td>1,585</td>
+                </tr>
+        
+                <tr>
+                    <td><strong>TotalCharges</strong></td>
+                    <td>float64</td>
+                    <td>7,032</td>
+                    <td>11</td>
+                    <td>6,530</td>
+                </tr>
+        
+                <tr>
+                    <td><strong>Churn</strong></td>
+                    <td>object</td>
+                    <td>7,043</td>
+                    <td>0</td>
+                    <td>2</td>
+                </tr>
+        
+            </table>
+            
+            <h2>⚠️ Data Quality Alerts</h2>
+    <div class="alert">⚠️ Column 'customerID' might be an ID field (100.0% unique)</div>
+            <h2>📊 Numeric Column Statistics</h2>
+            <table>
+                <tr>
+                    <th>Column</th>
+                    <th>Mean</th>
+                    <th>Std Dev</th>
+                    <th>Min</th>
+                    <th>25%</th>
+                    <th>50%</th>
+                    <th>75%</th>
+                    <th>Max</th>
+                </tr>
+        
+                <tr>
+                    <td><strong>SeniorCitizen</strong></td>
+                    <td>0.16</td>
+                    <td>0.37</td>
+                    <td>0.00</td>
+                    <td>0.00</td>
+                    <td>0.00</td>
+                    <td>0.00</td>
+                    <td>1.00</td>
+                </tr>
+            
+                <tr>
+                    <td><strong>tenure</strong></td>
+                    <td>32.37</td>
+                    <td>24.56</td>
+                    <td>0.00</td>
+                    <td>9.00</td>
+                    <td>29.00</td>
+                    <td>55.00</td>
+                    <td>72.00</td>
+                </tr>
+            
+                <tr>
+                    <td><strong>MonthlyCharges</strong></td>
+                    <td>64.76</td>
+                    <td>30.09</td>
+                    <td>18.25</td>
+                    <td>35.50</td>
+                    <td>70.35</td>
+                    <td>89.85</td>
+                    <td>118.75</td>
+                </tr>
+            
+                <tr>
+                    <td><strong>TotalCharges</strong></td>
+                    <td>2283.30</td>
+                    <td>2266.77</td>
+                    <td>18.80</td>
+                    <td>401.45</td>
+                    <td>1397.47</td>
+                    <td>3794.74</td>
+                    <td>8684.80</td>
+                </tr>
+            </table>
+        </div>
+    </body>
+    </html>
+    
